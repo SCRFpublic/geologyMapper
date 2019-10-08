@@ -18,7 +18,7 @@ plotRes = 1;
 topoMapper(BW(1:2:end,1:2:end), nNodes, plotRes);
 
 
-%% SPE10 2D example
+%% 2D heterogeneous porous media example
 
 clear;
 load spe10data.mat
@@ -49,7 +49,7 @@ set(gca, 'FontSize', 18)
 G2D = permTopoMapper(K2D, nNodes, plotRes);
 
 
-%% Compute distances between multiple realizations of two 3D cases
+%% Compute distances between multiple graph realizations of two 3D cases
 
 % indices
 isel    = 11:50;
@@ -72,9 +72,9 @@ permTopoMapper(K2, nNodes, 1);
 nReal = 10;
 
 laplacianSpectrumReducedGraphs1 = zeros(nReal, nNodes);
-laplacianSpectrumFullGraphs1 = zeros(nReal, nNodes*30);
+laplacianSpectrumFullGraphs1 = zeros(nReal, nNodes*40);
 laplacianSpectrumReducedGraphs2 = zeros(nReal, nNodes);
-laplacianSpectrumFullGraphs2 = zeros(nReal, nNodes*30);
+laplacianSpectrumFullGraphs2 = zeros(nReal, nNodes*40);
 
 for i = 1:nReal
 
@@ -83,52 +83,54 @@ for i = 1:nReal
     G2 =  permTopoMapper(K2, nNodes, 0);
     
     % compute eigenvalues
-    laplacianSpectrumReducedGraphs1(i,:) = computeLaplacianEV(G1.Wred);
-    laplacianSpectrumReducedGraphs2(i,:) = computeLaplacianEV(G2.Wred);
-    laplacianSpectrumFullGraphs1(i,:)   = computeLaplacianEV(G1.W);
-    laplacianSpectrumFullGraphs2(i,:)   = computeLaplacianEV(G2.W);
+    laplacianSpectrumReducedGraphs1(i,:) = computeLaplacianEV(G1.Wred)';
+    laplacianSpectrumReducedGraphs2(i,:) = computeLaplacianEV(G2.Wred)';
+    laplacianSpectrumFullGraphs1(i,:)   = computeLaplacianEV(G1.W)';
+    laplacianSpectrumFullGraphs2(i,:)   = computeLaplacianEV(G2.W)';
 
 end
 
 
-% plot eigenvalues of full graph
-eps = 100;
+% plot log-transformed eigenvalues of full graph
+eps1 = 10;
+
 figure
-plot (log(laplacianSpectrumFullGraphs1(1,:)' + eps),'r')
+plot (log(laplacianSpectrumFullGraphs1(1,:) + eps1)','r')
 hold on
-plot (log(laplacianSpectrumFullGraphs2(1,:)' + eps),'b')
-plot (log(laplacianSpectrumFullGraphs1' + eps),'r')
+plot (log(laplacianSpectrumFullGraphs2(1,:)' + eps1)','b')
+plot (log(laplacianSpectrumFullGraphs1' + eps1),'r')
 hold on
-plot (log(laplacianSpectrumFullGraphs2' + eps),'b')
+plot (log(laplacianSpectrumFullGraphs2' + eps1),'b')
 legend('Tarbert','Upper Ness')
 title('Full Graph Spectrum')
 xlabel('Eigenvalue Number')
 ylabel('log [\lambda]')
 set(gca, 'FontSize', 18)
 
-% plot distributions of full graphs
-EVfull = [laplacianSpectrumFullGraphs1; laplacianSpectrumFullGraphs2];
-showDistributions(EVfull, 2, eps, {'r', 'b'})
-title('Full Graph Spectrum Distributions')
-
-% plot eigenvalues of reduced graph
-eps = 100;
+eps2 = 100;
+% plot log-transformed eigenvalues of reduced graph
 figure
-plot (log(laplacianSpectrumReducedGraphs1(1,:)' + eps),'r')
+plot (log(laplacianSpectrumReducedGraphs1' + eps2),'r')
 hold on
-plot (log(laplacianSpectrumReducedGraphs2(1,:)' + eps),'b')
-plot (log(laplacianSpectrumReducedGraphs1' + eps),'r')
+plot (log(laplacianSpectrumReducedGraphs2' + eps2),'b')
+plot (log(laplacianSpectrumReducedGraphs1' + eps2),'r')
 hold on
-plot (log(laplacianSpectrumReducedGraphs2' + eps),'b')
+plot (log(laplacianSpectrumReducedGraphs2' + eps2),'b')
 legend('Tarbert','Upper Ness')
 title('Reduced Graph Spectrum')
 xlabel('Eigenvalue Number')
 ylabel('log [\lambda]')
 set(gca, 'FontSize', 18)
+
+% plot distributions of full graphs
+EVfull = [laplacianSpectrumFullGraphs1; laplacianSpectrumFullGraphs2];
+showDistributions(EVfull, 2, eps1, {'r', 'b'})
+title('Full Graph Spectrum Distributions')
+
  
 % plot distributions of reduced graphs
 EVred = [laplacianSpectrumReducedGraphs1; laplacianSpectrumReducedGraphs2];
-showDistributions(EVred, 2, eps, {'r', 'b'})
+showDistributions(EVred, 2, eps2, {'r', 'b'})
 title('Reduced Graph Spectrum Distributions')
 
 
